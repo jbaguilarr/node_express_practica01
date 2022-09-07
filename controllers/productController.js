@@ -1,9 +1,12 @@
 const fs = require("fs");
+const Product = require("../models/Product");
 
-exports.getAllProducts = (req, res) => {
-  const products = JSON.parse(
-    fs.readFileSync(`${__dirname}/../data/products.json`)
-  );
+exports.getAllProducts =async (req, res) => {
+  // const products = JSON.parse(
+  //   fs.readFileSync(`${__dirname}/../data/products.json`)
+  // );
+
+  const products = await Product.find();
 
   res.status(200).json({
     status: "success",
@@ -15,43 +18,47 @@ exports.getAllProducts = (req, res) => {
   });
 };
 
-exports.addProduct = (req, res) => {
-  const products = JSON.parse(
-    fs.readFileSync(`${__dirname}/../data/products.json`)
-  );
-  products.push(req.body);
-  fs.writeFileSync(`${__dirname}/../data/products.json`, JSON.stringify(products));
+exports.addProduct = async (req, res) => {
+  // const products = JSON.parse(
+  //   fs.readFileSync(`${__dirname}/../data/products.json`)
+  // );
+  // products.push(req.body);
+  // fs.writeFileSync(`${__dirname}/../data/products.json`, JSON.stringify(products));
+
+  const newProduct = await Product.create(req.body);
 
   res.status(200).json({
     status: "success",
     data: {
-      products,
+      products : newProduct,
     },
   });
 };
 
 // PUT /api/v1/products/:id
-exports.updateProduct = (req, res) =>{
+// ProductFindByIdAndUpdate(id,body,{new:true})
+exports.updateProduct = async (req, res) =>{
     const {id} = req.params;
 
-    const products = JSON.parse(
-       fs.readFileSync(`${__dirname}/../data/products.json`)
-    );
-    const foundProduct = products.find((p) => p.id == id);
-
+    // const products = JSON.parse(
+    //    fs.readFileSync(`${__dirname}/../data/products.json`)
+    // );
+    // const foundProduct = products.find((p) => p.id == id);
+    
+    const foundProduct = await Product.findByIdAndUpdate(id,req.body,{new : true});
     if (foundProduct) {
 
-      const listProduct = products.filter((p) => p.id != id);
-      listProduct.push({
-         id,
-         ...req.body
-      });
-      fs.writeFileSync(`${__dirname}/../data/products.json`, JSON.stringify(listProduct));
+      // const listProduct = products.filter((p) => p.id != id);
+      // listProduct.push({
+      //    id,
+      //    ...req.body
+      // });
+      // fs.writeFileSync(`${__dirname}/../data/products.json`, JSON.stringify(listProduct));
 
       res.status(200).json({
         status: "success",
         data: {
-          product: listProduct,
+          product: foundProduct,
         },
       });
     } else {
@@ -62,22 +69,25 @@ exports.updateProduct = (req, res) =>{
 
 };
 // DELETE /api/v1/products/:id
-exports.deleteProduct = (req,res) => {
+//ProductFindByIdAndDelete(Id)
+exports.deleteProduct =async (req,res) => {
     const {id} = req.params;
 
-    const products = JSON.parse(
-      fs.readFileSync(`${__dirname}/../data/products.json`)
-    );
-    const foundProduct = products.find((p) => p.id == id);
+    // const products = JSON.parse(
+    //   fs.readFileSync(`${__dirname}/../data/products.json`)
+    // );
+    // const foundProduct = products.find((p) => p.id == id);
+
+    const foundProduct =await Product.findByIdAndDelete(id);
     if (foundProduct) {
 
-      const listProduct = products.filter((p) => p.id != id);
-      fs.writeFileSync(`${__dirname}/../data/products.json`, JSON.stringify(listProduct));
+      // const listProduct = products.filter((p) => p.id != id);
+      // fs.writeFileSync(`${__dirname}/../data/products.json`, JSON.stringify(listProduct));
 
       res.status(200).json({
         status: "success",
         data: {
-          product: listProduct,
+          product: foundProduct,
         },
       });
     } else {
@@ -87,12 +97,14 @@ exports.deleteProduct = (req,res) => {
     }
 };
 
-exports.getProductById = (req, res) => {
-  const products = JSON.parse(
-    fs.readFileSync(`${__dirname}/../data/products.json`)
-  );
+exports.getProductById = async(req, res) => {
+  // const products = JSON.parse(
+  //   fs.readFileSync(`${__dirname}/../data/products.json`)
+  // );
+  // const foundProduct = products.find((p) => p.id == req.params.id);
 
-  const foundProduct = products.find((p) => p.id == req.params.id);
+  
+  const foundProduct = await Product.findById(req.params.id);
   if (foundProduct) {
     res.status(200).json({
       status: "success",
